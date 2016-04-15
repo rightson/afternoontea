@@ -9,39 +9,48 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-/*global $*/
-/*global React*/
-/*global Scott*/
+ 
+ /*global React*/
+ /*global $*/
+ /*global ReactDOM*/
+ 
 var AfternoonTea = React.createClass({
+	getInitialState : function() {	
+		return {count: 0};
+	},
+	onAfternoonTeaAdd : function(vote_count) {
+		this.setState({ count: vote_count});
+	},
 	render: function() {
 		return (
-			<tr>
+			<table><tr>
 				<td>{this.props.name}</td>
 				<td>{this.props.type}</td>
 				<td>{this.props.money}</td>
-				<td>{this.props.vote}</td>
-				<td><Vote_btn name={this.props.name} type={this.props.type} money={this.props.money} vote={this.props.vote}></Vote_btn></td>
-			</tr>
+				<td>{this.state.count}</td>
+				<td><Vote_btn name={this.props.name} type={this.props.type} money={this.props.money} count={this.state.count} onAfternoonTeaClick={this.onAfternoonTeaAdd}></Vote_btn></td>
+			</tr></table>
 		);
 	}
 });
 
+
 var Vote_btn = React.createClass({
 	getInitialState : function() {	
 		return {
-			count: this.props.vote
+			count: this.props.count
 		};
 	},
 	onClick : function() {
 		var vote_count = this.state.count+1;
+		this.setState({ count: vote_count});
 		alert(vote_count);
-		this.setState({ count: this.state.count + 1});
-		this.props.onAfternoonTeaClick({vote: vote_count});		
+		this.props.onAfternoonTeaClick(vote_count);		
 	},
 	render:function() {
 		return (
 		<div>
-			<span>{this.state.count}</span>
+		    <span>{this.state.count}</span>
 			<button onClick={this.onClick}>add</button>
 		</div>
 		);
@@ -115,7 +124,7 @@ var AfternoonTeaBox = React.createClass({
     	return (
       		<div className="listBox">
         		<h1>Afternoon Tea</h1>
-        		<AfternoonTeaList  data={this.state.data} />
+        		<AfternoonTeaList  data={this.state.data} /*refresh={this.updateList}*/ />
         		<AfternoonTeaForm onAfternoonTeaSubmit={this.handleAfternoonTeaSubmit} />
       		</div>
     	);
@@ -127,12 +136,12 @@ var AfternoonTeaList = React.createClass({
   	render: function() {
 		var total_money = 0;
     	var datalist = this.props.data.map(function(list, index) {
-			total_money += list.money * list.vote;
+			total_money = total_money + list.money * list.count;
       		return (
-        		<AfternoonTea name={list.name}  type={list.type} money={list.money} vote={list.vote} id={list.id} key={index}></AfternoonTea>
+        		<AfternoonTea name={list.name}  type={list.type} money={list.money} count={list.count} id={list.id} key={index} /*update={this.updateList}*/></AfternoonTea>
       		);
     	});
-		//alert(total_money);
+
     	return (
 		<div>
       		<table>
@@ -153,12 +162,12 @@ var AfternoonTeaList = React.createClass({
 					</tr>
 				</tfoot>
             </table>
-			<div></div>
 		</div>
 			
     	);
   	}
 });
+
 
 var AfternoonTeaForm = React.createClass({
 	getInitialState: function() {
@@ -182,7 +191,7 @@ var AfternoonTeaForm = React.createClass({
 			alert("請輸入Name/Type/Money");
 			return;
     	}
-    	this.props.onAfternoonTeaSubmit({name: name, type: type, money: money});
+    	this.props.onAfternoonTeaSubmit({name: name, type: type, money: money, count: 0});
     	this.setState({name: '', type: '', money:''});
   	},
   	render: function() {
@@ -211,6 +220,6 @@ var AfternoonTeaForm = React.createClass({
 });
 
 ReactDOM.render(
-  	<AfternoonTeaBox url="https://web-study-group-rightson.c9users.io/afternoontea" pollInterval={2000} />,
+  	<AfternoonTeaBox url="https://yd-tea-yender.c9users.io/afternoontea" pollInterval={2000} />,
   	document.getElementById('content')
 );
